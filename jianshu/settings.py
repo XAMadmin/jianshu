@@ -96,7 +96,7 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 IMAGES_STORE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images')
-# IMAGES_URLS_FIELD = 'image_urls'
+IMAGES_EXPIRES = 90  # 90天内抓取的都不会被重抓
 
 POSTGRESQL_HOST = 'localhost'
 POSTGRESQL_DATABASE = 'postgres'
