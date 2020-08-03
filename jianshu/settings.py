@@ -14,7 +14,7 @@ BOT_NAME = 'jianshu'
 SPIDER_MODULES = ['jianshu.spiders']
 NEWSPIDER_MODULE = 'jianshu.spiders'
 
-
+# LOG_LEVEL = "INFO"
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'jianshu (+http://www.yourdomain.com)'
 
@@ -69,8 +69,9 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'jianshu.pipelines.JianshuPipeline': 200,
-    'jianshu.pipelines.DownImagePipeline': 201,
+   # 'jianshu.pipelines.JianshuPipeline': 200,
+   'jianshu.pipelines.TwistedSqlPipeline': 200,
+   'jianshu.pipelines.DownImagePipeline': 201,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -96,3 +97,8 @@ ITEM_PIPELINES = {
 
 IMAGES_STORE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images')
 # IMAGES_URLS_FIELD = 'image_urls'
+
+POSTGRESQL_HOST = 'localhost'
+POSTGRESQL_DATABASE = 'postgres'
+POSTGRESQL_USER = 'postgres'
+POSTGRESQL_PASSWORD = 'root'

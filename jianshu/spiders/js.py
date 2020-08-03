@@ -28,4 +28,4 @@ class JsSpider(CrawlSpider):
             yield item
         except Exception as e:
             print(e)
-            yield None
+            pass

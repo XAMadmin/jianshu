@@ -8,6 +8,8 @@ import psycopg2
 from scrapy.pipelines.images import ImagesPipeline
 from . import settings
 import os
+from twisted.enterprise import adbapi
+import logging
 
 
 class JianshuPipeline(object):
@@ -39,6 +41,46 @@ class JianshuPipeline(object):
                                                   item["image_urls"], item["pub_time"], item["author"]))
             self.conn.commit()
         return item
+
+
+class TwistedSqlPipeline(object):
+    """PostgreSQL Pipeline"""
+    def __init__(self, dbpool):
+        self.logger = logging.getLogger(__name__)
+        self.dbpool = dbpool
+        self._sql = None
+
+    @classmethod
+    def from_settings(cls, settings):
+        dbparam = dict(
+            host=settings['POSTGRESQL_HOST'],
+            database=settings['POSTGRESQL_DATABASE'],
+            user=settings['POSTGRESQL_USER'],
+            password=settings['POSTGRESQL_PASSWORD'],
+        )
+        dbpool = adbapi.ConnectionPool("psycopg2", **dbparam)
+        return cls(dbpool)
+
+    def process_item(self, item, spider):
+        defer = self.dbpool.runInteraction(self._insert_item, item)
+        defer.addErrback(self._handle_error, item, spider)
+        return item
+
+    def _insert_item(self, cursor, item):
+        if self._sql is None:
+            self._sql = """
+               insert into jianshu(title, content, origin_url, avatar, pub_time, author) values(%s,%s, %s,%s,%s, %s);
+            """
+        try:
+            cursor.execute(self._sql, (item["title"],
+                                       item["content"], item["origin_url"],
+                                       item["image_urls"], item["pub_time"], item["author"]))
+        except Exception as e:
+            self.logger.error("插入失败:{}, 错误对象:{}".format(e, item))
+
+    def _handle_error(self, failure, item, spider):
+        """Handle occurred on db interaction."""
+        self.logger.error("失败原因:{}, 失败对象{}".format(failure, item))
 
 
 class DownImagePipeline(ImagesPipeline):

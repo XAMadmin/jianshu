@@ -38,7 +38,6 @@ class JianshuSeleniumMiddleware(object):
             pass
 
 
-
 class LoggingSpiderMiddleware:
     @classmethod
     def from_crawler(cls, crawler):
